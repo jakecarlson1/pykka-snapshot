@@ -1,5 +1,6 @@
-import numpy as np
 from snapshotting.snapshotable_actor import SnapshotableActor
+import numpy as np
+import time
 
 class Incrementor(SnapshotableActor):
     def __init__(self, msg_send_prob):
@@ -10,13 +11,19 @@ class Incrementor(SnapshotableActor):
     def on_receive(self, message):
         super().on_receive(message)
 
-        self.logical_clock = max(message["logical_clock"], self.logical_clock) + 1
+        print(message["obj"])
+
+        self.logical_clock = max(message["obj"]["logical_clock"], self.logical_clock) + 1
+
+        self._print_clock()
 
         self._can_send_message_to_neighbor()
 
         self._send_message_to_self()
 
-    def _can_send_message_to_neighbor():
+        time.sleep(1)
+
+    def _can_send_message_to_neighbor(self):
         val = np.random.random_sample()
         if val >= self.msg_send_prop:
             self.logical_clock += 1
@@ -28,7 +35,7 @@ class Incrementor(SnapshotableActor):
 
             self.send_message_to_neighbor(idx, msg)
 
-    def _send_message_to_self():
+    def _send_message_to_self(self):
         self.logical_clock += 1
 
         msg = {
@@ -36,4 +43,7 @@ class Incrementor(SnapshotableActor):
         }
 
         self.send_message_to_self(msg)
+
+    def _print_clock(self):
+        print("Clock at", self.id_short, ":", self.logical_clock)
 

@@ -1,16 +1,20 @@
 from examples.example_1.incrementor import Incrementor
+from pykka import ActorRegistry
+from pykka.exceptions import ActorDeadError
 import inspect
 import sys
 import time
+
+from snapshotting.message import Message
 
 ACTOR_PROXIES = []
 
 def run_example_1():
     print("Setting up example 1")
 
-    inc1 = Incrementor.start(0.2).proxy()
-    inc2 = Incrementor.start(0.8).proxy()
-    inc_proxies = [inc1, inc2]
+    inc1 = Incrementor.start(0.2)
+    inc2 = Incrementor.start(0.8)
+    inc_proxies = [inc1.proxy(), inc2.proxy()]
 
     ACTOR_PROXIES.extend(inc_proxies)
 
@@ -19,13 +23,22 @@ def run_example_1():
         p.save_neighbors(proxies_to_send).get()
 
     print("Starting example 1")
+    start_msg = { "start": True, "logical_clock": 0 }
+    start_msg = Message(0, 0, start_msg).as_sendable()
+    inc1.tell(start_msg)
 
 def cleanup():
     print("\nCleaning up example")
 
-    for a in ACTOR_PROXIES:
-        print("Stopping", a.id.get())
-        a.stop()
+    ActorRegistry.stop_all()
+
+    # for a in ACTOR_PROXIES:
+    #     try:
+    #         print("Stopping", a.id.get())
+    #         a.stop()
+    #     except (ActorDeadError):
+    #         print("Dead actor:", a)
+    #         continue
 
     print("Done!")
 

@@ -1,25 +1,28 @@
 from pykka import ThreadingActor
-from snapshotting import message
+from snapshotting.message import Message
+from snapshotting.neighbor import Neighbor
 
 class SnapshotableActor(ThreadingActor):
     def __init__(self):
         super().__init__()
         self.id = self.actor_urn
-        self.neighbor_proxies = []
-        self.neighbor_ids = []
+        self.id_short = self.shorten_id()
+        self.neighbors = []
 
     def save_neighbors(self, proxies):
-        self.neighbor_ids = [p.id.get() for p in proxies]
-        self.neighbor_proxies = proxies
+        self.neighbors = [Neighbor(p) for p in proxies]
 
     def send_message_to_neighbor(self, i, msg_data):
-        receiver_id = self.neighbor_ids[i]
-        msg = Message(self.id, receiver_id, msg_data)
-        self.neighbor_proxies[i].tell(msg)
+        receiver = self.neighbors[i]
+        msg = Message(self.id_short, receiver.id_short, msg_data)
+        self.neighbors[i].ref.tell(msg.as_sendable())
 
     def send_message_to_self(self, msg_data):
-        msg = Message(self.id, self.id, msg_data)
-        self.actor_ref.tell(msg)
+        msg = Message(self.id_short, self.id_short, msg_data)
+        self.actor_ref.tell(msg.as_sendable())
+
+    def shorten_id(self):
+        return self.id.split(":")[2].split("-")[0]
 
     # TODO: overload on receive to handle snapshot messages
 
