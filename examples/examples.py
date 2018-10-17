@@ -14,6 +14,10 @@ def run_example_1():
 
     ACTOR_PROXIES.extend(inc_proxies)
 
+    for i, p in enumerate(inc_proxies):
+        proxies_to_send = [ip for j, ip in enumerate(inc_proxies) if j != i]
+        p.save_neighbors(proxies_to_send).get()
+
     print("Starting example 1")
 
 def cleanup():
