@@ -1,4 +1,4 @@
-from snapshotting.snapshotable_actor import SnapshotableActor
+from snapshotting import SnapshotableActor
 import numpy as np
 import time
 

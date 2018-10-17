@@ -1,11 +1,11 @@
-from examples.example_1.incrementor import Incrementor
+from examples.example_1 import Incrementor
 from pykka import ActorRegistry
 from pykka.exceptions import ActorDeadError
 import inspect
 import sys
 import time
 
-from snapshotting.message import Message
+from snapshotting import Message
 
 ACTOR_PROXIES = []
 

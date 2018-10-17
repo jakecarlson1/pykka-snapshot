@@ -1,6 +1,5 @@
 from pykka import ThreadingActor
-from snapshotting.message import Message
-from snapshotting.neighbor import Neighbor
+from snapshotting import Message, Neighbor
 
 class SnapshotableActor(ThreadingActor):
     def __init__(self):

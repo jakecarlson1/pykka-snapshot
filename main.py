@@ -1,5 +1,5 @@
 import argparse
-from examples.examples import *
+from examples import run_example
 
 def build_arg_parser():
     parser = argparse.ArgumentParser(prog='snapshot-threads')
@@ -18,3 +18,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+
