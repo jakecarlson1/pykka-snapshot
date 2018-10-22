@@ -5,7 +5,10 @@ class Message(object):
         self.data = data
 
     def __getitem__(self, key):
-        return self.data[key]
+        try:
+            return self.data[key]
+        except (KeyError):
+            return None
 
     def __str__(self):
         return "{} -> {} : {}".format(self.sender, self.receiver, self.data)

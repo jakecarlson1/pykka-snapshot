@@ -27,6 +27,11 @@ def run_example_1():
     start_msg = Message(0, 0, start_msg).as_sendable()
     inc1.tell(start_msg)
 
+    time.sleep(1)
+    snapshot_msg = { "init_snapshot": True }
+    snapshot_msg = Message(0, 0, snapshot_msg).as_sendable()
+    inc1.tell(snapshot_msg)
+
 def cleanup():
     print("\nCleaning up example")
 

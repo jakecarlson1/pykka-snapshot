@@ -6,26 +6,28 @@ class Incrementor(SnapshotableActor):
     def __init__(self, msg_send_prob):
         super().__init__()
         self.logical_clock = 0
-        self.msg_send_prop = msg_send_prob
+        self.msg_send_prob = msg_send_prob
+        self.attrs_to_save = ['logical_clock', 'msg_send_prob']
 
     def on_receive(self, message):
-        super().on_receive(message)
-
         print(message["obj"])
+        super_handled_msg = super().on_receive(message)
 
-        self.logical_clock = max(message["obj"]["logical_clock"], self.logical_clock) + 1
+        if not super_handled_msg:
 
-        self._print_clock()
+            self.logical_clock = max(message["obj"]["logical_clock"], self.logical_clock) + 1
 
-        self._can_send_message_to_neighbor()
+            self._print_clock()
 
-        self._send_message_to_self()
+            self._can_send_message_to_neighbor()
 
-        time.sleep(1)
+            self._send_message_to_self()
+
+            time.sleep(1)
 
     def _can_send_message_to_neighbor(self):
         val = np.random.random_sample()
-        if val >= self.msg_send_prop:
+        if val >= self.msg_send_prob:
             self.logical_clock += 1
 
             idx = np.random.randint(0, len(self.neighbors))
