@@ -7,7 +7,6 @@ class Incrementor(SnapshotableActor):
         super().__init__()
         self.logical_clock = 0
         self.msg_send_prob = msg_send_prob
-        self.attrs_to_save = ['logical_clock', 'msg_send_prob']
 
     def on_receive(self, message):
         print(message["obj"])
