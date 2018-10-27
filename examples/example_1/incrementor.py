@@ -13,7 +13,6 @@ class Incrementor(SnapshotableActor):
         super_handled_msg = super().on_receive(message)
 
         if not super_handled_msg:
-
             self.logical_clock = max(message["obj"]["logical_clock"], self.logical_clock) + 1
 
             self._print_clock()

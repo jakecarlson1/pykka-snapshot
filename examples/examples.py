@@ -24,12 +24,12 @@ def run_example_1():
 
     print("Starting example 1")
     start_msg = { "start": True, "logical_clock": 0 }
-    start_msg = Message(0, 0, start_msg).as_sendable()
+    start_msg = Message(0, inc1.proxy().id_short.get(), start_msg).as_sendable()
     inc1.tell(start_msg)
 
     time.sleep(1)
     snapshot_msg = { "init_snapshot": True }
-    snapshot_msg = Message(0, 0, snapshot_msg).as_sendable()
+    snapshot_msg = Message(0, inc1.proxy().id_short.get(), snapshot_msg).as_sendable()
     inc1.tell(snapshot_msg)
 
 def cleanup():

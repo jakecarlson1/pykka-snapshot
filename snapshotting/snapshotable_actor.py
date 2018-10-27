@@ -33,13 +33,16 @@ class SnapshotableActor(ThreadingActor):
         msg_obj = message['obj']
         if msg_obj["init_snapshot"] == True:
             print("start snapshot")
-            snapshot_id = self._start_snapshot()
-            self._send_mark_to_neighbors(snapshot_id)
+            self._take_snapshot()
             return True
         elif msg_obj["mark_snapshot"] != None:
             snapshot_id = msg_obj["mark_snapshot"]
             print("mark snapshot", snapshot_id)
-            # TODO: see if snapshot in progress with id, if not, save state
+            if snapshot_id not in self.snapshots.keys():
+                self._take_snapshot(snapshot_id)
+            # TODO: else, process all messages saved in snapshot, not saved in other
+            return True
+                
 
         # TODO: see if snapshot in progress, if yes save msg for channel
 
@@ -48,16 +51,16 @@ class SnapshotableActor(ThreadingActor):
     def _update_attrs_to_save(self):
         self.attrs_to_save = set(self.__dict__.keys()) - self.attrs_of_super
 
-    def _start_snapshot(self):
-        snapshot_id = uuid4()
+    def _take_snapshot(self, snapshot_id=None):
+        if snapshot_id == None:
+            snapshot_id = uuid4()
         snapshot = Snapshot(snapshot_id)
         self._update_attrs_to_save()
         if len(self.attrs_to_save) == 0:
-            print("No attributes given to save")
+            print("No attributes to save")
         snapshot.save_actor_state(self)
         self.snapshots[snapshot_id] = snapshot
-        
-        return snapshot_id
+        self._send_mark_to_neighbors(snapshot_id)
 
     def _send_mark_to_neighbors(self, snapshot_id):
         mark_msg_data = { "mark_snapshot" : snapshot_id }
