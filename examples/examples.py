@@ -52,6 +52,11 @@ def get_available_examples():
             if inspect.isfunction(obj) and "run_example_" in name]
 
 def run_example(n):
+    # import logging
+    # import signal
+    # import pykka.debug
+    # logging.basicConfig(level=logging.DEBUG)
+    # signal.signal(signal.SIGUSR1, pykka.debug.log_thread_tracebacks)
     example_target = "run_example_{}".format(n)
     if example_target in get_available_examples():
         try:

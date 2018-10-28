@@ -34,17 +34,32 @@ class SnapshotableActor(ThreadingActor):
         if msg_obj["init_snapshot"] == True:
             print("start snapshot")
             self._take_snapshot()
+
             return True
+
         elif msg_obj["mark_snapshot"] != None:
             snapshot_id = msg_obj["mark_snapshot"]
             print("mark snapshot", snapshot_id)
             if snapshot_id not in self.snapshots.keys():
                 self._take_snapshot(snapshot_id)
-            # TODO: else, process all messages saved in snapshot, not saved in other
-            return True
-                
+                # TODO: Should this channel immediately be marked closed?
+            else:
+                print("second")
+                self.snapshots[snapshot_id].mark_channel_closed(msg_obj.get_channel())
+                if not self.snapshots[snapshot_id].is_in_progress():
+                    print("second 2")
+                    self._post_process_snapshot(snapshot_id)
 
-        # TODO: see if snapshot in progress, if yes save msg for channel
+            return True
+
+        else:
+            in_progress = [s for s in self.snapshots.values() if s.is_in_progress()]
+            channel = msg_obj.get_channel()
+            if len(in_progress) > 0 and channel[0] != channel[1]:
+                for s in in_progress:
+                    s.save_message(msg_obj)
+
+                # return True
 
         return False
 
@@ -67,4 +82,10 @@ class SnapshotableActor(ThreadingActor):
         for n in self.neighbors:
             mark_msg = Message(self.id_short, n.id_short, mark_msg_data)
             n.ref.tell(mark_msg.as_sendable())
+
+    def _post_process_snapshot(self, snapshot_id):
+        print("save snapshot", snapshot_id)
+        # write out snapshot
+        
+        # process messages not in other snapshots
 
