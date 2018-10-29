@@ -42,13 +42,12 @@ class SnapshotableActor(ThreadingActor):
             print("mark snapshot", snapshot_id)
             if snapshot_id not in self.snapshots.keys():
                 self._take_snapshot(snapshot_id)
-                # TODO: Should this channel immediately be marked closed?
+                self.snapshots[snapshot_id].mark_channel_closed(msg_obj.get_channel())
             else:
                 print("second")
                 self.snapshots[snapshot_id].mark_channel_closed(msg_obj.get_channel())
-                if not self.snapshots[snapshot_id].is_in_progress():
-                    print("second 2")
-                    self._post_process_snapshot(snapshot_id)
+            if not self.snapshots[snapshot_id].is_in_progress():
+                self._post_process_snapshot(snapshot_id)
 
             return True
 
@@ -58,8 +57,6 @@ class SnapshotableActor(ThreadingActor):
             if len(in_progress) > 0 and channel[0] != channel[1]:
                 for s in in_progress:
                     s.save_message(msg_obj)
-
-                # return True
 
         return False
 
