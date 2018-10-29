@@ -3,3 +3,7 @@
 
 # py cache
 __pycache__/
+
+# snapshots
+snapshots/
+

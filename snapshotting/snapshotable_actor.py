@@ -1,6 +1,9 @@
+from datetime import datetime
 from pykka import ThreadingActor
 from snapshotting import Message, Neighbor, Snapshot
 from uuid import uuid4
+import os
+import pickle
 
 class SnapshotableActor(ThreadingActor):
     def __init__(self):
@@ -9,8 +12,10 @@ class SnapshotableActor(ThreadingActor):
         self.id_short = self.shorten_id()
         self.neighbors = []
         self.snapshots = {}
-        self.attrs_of_super = {}
+        with open(os.path.dirname(os.path.abspath(__file__)) + "/config/snapshotdir.txt", "r") as f:
+            self.snapshot_dir = f.read().strip()
         self.attrs_to_save = {}
+        self.attrs_of_super = {}
         self.attrs_of_super = set(self.__dict__.keys())
 
     def save_neighbors(self, proxies):
@@ -28,12 +33,12 @@ class SnapshotableActor(ThreadingActor):
     def shorten_id(self):
         return self.id.split(":")[2].split("-")[0]
 
-    # TODO: overload on receive to handle snapshot messages
     def on_receive(self, message):
         msg_obj = message['obj']
         if msg_obj["init_snapshot"] == True:
             print("start snapshot")
-            self._take_snapshot()
+            snapshot_id = self._take_snapshot()
+            snapshot_path = self._make_snapshot_directory(snapshot_id)
 
             return True
 
@@ -44,7 +49,6 @@ class SnapshotableActor(ThreadingActor):
                 self._take_snapshot(snapshot_id)
                 self.snapshots[snapshot_id].mark_channel_closed(msg_obj.get_channel())
             else:
-                print("second")
                 self.snapshots[snapshot_id].mark_channel_closed(msg_obj.get_channel())
             if not self.snapshots[snapshot_id].is_in_progress():
                 self._post_process_snapshot(snapshot_id)
@@ -74,6 +78,8 @@ class SnapshotableActor(ThreadingActor):
         self.snapshots[snapshot_id] = snapshot
         self._send_mark_to_neighbors(snapshot_id)
 
+        return snapshot_id
+
     def _send_mark_to_neighbors(self, snapshot_id):
         mark_msg_data = { "mark_snapshot" : snapshot_id }
         for n in self.neighbors:
@@ -82,7 +88,20 @@ class SnapshotableActor(ThreadingActor):
 
     def _post_process_snapshot(self, snapshot_id):
         print("save snapshot", snapshot_id)
-        # write out snapshot
-        
-        # process messages not in other snapshots
+        class_name = self.__class__.__name__
+        snapshot_path = self.snapshot_dir + "/" + str(snapshot_id)
+        file_name = "{}/{}-{}.pkl".format(snapshot_path, class_name, self.id_short)
+        with open(file_name, "wb") as f:
+            pickle.dump(self.snapshots[snapshot_id], f)
+        with open(snapshot_path + "/info.txt", "w") as f:
+            f.write("WROTE {}: {}\n".format(self.id_short, datetime.now()))
+
+    def _make_snapshot_directory(self, snapshot_id):
+        snapshot_path = self.snapshot_dir + "/" + str(snapshot_id)
+        if not os.path.exists(snapshot_path):
+            os.mkdir(snapshot_path)
+            with open(snapshot_path + "/info.txt", "w") as f:
+                f.write("START: {}\n".format(datetime.now()))
+
+        return snapshot_path
 
