@@ -9,7 +9,7 @@ from snapshotting import Message
 
 ACTOR_PROXIES = []
 
-def run_example_1():
+def run_example_1(args):
     print("Setting up example 1")
 
     inc1 = Incrementor.start(0.2)
@@ -51,16 +51,17 @@ def get_available_examples():
     return [name for name, obj in inspect.getmembers(sys.modules[__name__])
             if inspect.isfunction(obj) and "run_example_" in name]
 
-def run_example(n):
+def run_example(args):
     # import logging
     # import signal
     # import pykka.debug
     # logging.basicConfig(level=logging.DEBUG)
     # signal.signal(signal.SIGUSR1, pykka.debug.log_thread_tracebacks)
+    n = int(args['example'])
     example_target = "run_example_{}".format(n)
     if example_target in get_available_examples():
         try:
-            exec(example_target + "()")
+            exec(example_target + "(args)")
             while True:
                 time.sleep(100)
         except (KeyboardInterrupt):
