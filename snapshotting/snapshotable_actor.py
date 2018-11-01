@@ -93,7 +93,7 @@ class SnapshotableActor(ThreadingActor):
         file_name = "{}/{}-{}.pkl".format(snapshot_path, class_name, self.id_short)
         with open(file_name, "wb") as f:
             pickle.dump(self.snapshots[snapshot_id], f)
-        with open(snapshot_path + "/info.txt", "w") as f:
+        with open(snapshot_path + "/info.txt", "a") as f:
             f.write("WROTE {}: {}\n".format(self.id_short, datetime.now()))
 
     def _make_snapshot_directory(self, snapshot_id):

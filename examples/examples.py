@@ -11,10 +11,16 @@ ACTOR_PROXIES = []
 
 def run_example_1(args):
     print("Setting up example 1")
+    
+    probs = args['send_probs']
+    num_incs = len(probs)
 
-    inc1 = Incrementor.start(0.2)
-    inc2 = Incrementor.start(0.8)
-    inc_proxies = [inc1.proxy(), inc2.proxy()]
+    incs = []
+    inc_proxies = []
+    for i in range(num_incs):
+        inc = Incrementor.start(probs[i])
+        incs.append(inc)
+        inc_proxies.append(inc.proxy())
 
     ACTOR_PROXIES.extend(inc_proxies)
 
@@ -24,13 +30,13 @@ def run_example_1(args):
 
     print("Starting example 1")
     start_msg = { "start": True, "logical_clock": 0 }
-    start_msg = Message(0, inc1.proxy().id_short.get(), start_msg).as_sendable()
-    inc1.tell(start_msg)
+    start_msg = Message(0, incs[0].proxy().id_short.get(), start_msg).as_sendable()
+    incs[0].tell(start_msg)
 
     time.sleep(1)
     snapshot_msg = { "init_snapshot": True }
-    snapshot_msg = Message(0, inc1.proxy().id_short.get(), snapshot_msg).as_sendable()
-    inc1.tell(snapshot_msg)
+    snapshot_msg = Message(0, incs[0].proxy().id_short.get(), snapshot_msg).as_sendable()
+    incs[0].tell(snapshot_msg)
 
 def cleanup():
     print("\nCleaning up example")
