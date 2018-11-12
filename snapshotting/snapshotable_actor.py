@@ -2,6 +2,8 @@ from datetime import datetime
 from pykka import ThreadingActor
 from snapshotting import Message, Neighbor, Snapshot
 from uuid import uuid4
+import inspect
+import json
 import os
 import pickle
 
@@ -94,7 +96,9 @@ class SnapshotableActor(ThreadingActor):
         with open(file_name, "wb") as f:
             pickle.dump(self.snapshots[snapshot_id], f)
         with open(snapshot_path + "/info.txt", "a") as f:
-            f.write("WROTE {} {}: {}\n".format(class_name, self.id_short, datetime.now()))
+            f.write("{}-{}: {}\n".format(
+                class_name, self.id_short, self._json_save_dict()
+            ))
 
     def _make_snapshot_directory(self, snapshot_id):
         snapshot_path = self.snapshot_dir + "/" + str(snapshot_id)
@@ -104,4 +108,13 @@ class SnapshotableActor(ThreadingActor):
                 f.write("START: {}\n".format(datetime.now()))
 
         return snapshot_path
+
+    def _json_save_dict(self):
+        class_path = inspect.getfile(self.__class__)
+        data = {
+            'class_path': class_path,
+            'timestamp': str(datetime.now())
+        }
+
+        return json.dumps(data, indent=4)
 

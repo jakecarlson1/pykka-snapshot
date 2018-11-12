@@ -75,3 +75,6 @@ def run_example(args):
     else:
         print("Example not implemented")
 
+def reload_example(snapshot_dir):
+    print(snapshot_dir)
+

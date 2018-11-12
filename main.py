@@ -1,6 +1,6 @@
 import argparse
 import os
-from examples import run_example
+from examples import run_example, reload_example
 
 def build_arg_parser():
     parser = argparse.ArgumentParser(prog='snapshot-threads')
@@ -50,6 +50,7 @@ def main():
     if args.reload:
         reload_dir = show_snapshots(args.snapshot_dir)
         print(reload_dir)
+        reload_example(reload_dir)
     else:
         run_example(vars(args))
 
