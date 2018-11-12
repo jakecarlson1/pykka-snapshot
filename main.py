@@ -16,12 +16,25 @@ def build_arg_parser():
     
     return parser
 
+def is_int(i):
+    try:
+        int(i)
+        return True
+    except:
+        return False
+
 def show_snapshots(snapshot_dir):
     dirs = os.listdir(snapshot_dir)
-    for d in dirs:
-        print(d)
+    for i, d in enumerate(dirs):
+        print('[{}]:\t'.format(i), d, sep='')
         with open(snapshot_dir + '/' + d + '/info.txt', 'r') as f:
-            print(f.read())
+            print('\t' + f.read().replace('\n', '\n\t'))
+
+    num = input('Choose a snapshot number: ')
+    while not is_int(num) or int(num) < 0 or int(num) >= len(dirs):
+        num = input('Enter a displayed integer: ')
+
+    return snapshot_dir + '/' + dirs[int(num)]
 
 def main():
     parser = build_arg_parser()
@@ -35,7 +48,8 @@ def main():
         f.write(os.path.abspath(args.snapshot_dir))
 
     if args.reload:
-        show_snapshots(args.snapshot_dir)
+        reload_dir = show_snapshots(args.snapshot_dir)
+        print(reload_dir)
     else:
         run_example(vars(args))
 
