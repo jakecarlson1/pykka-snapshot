@@ -5,7 +5,7 @@ import inspect
 import sys
 import time
 
-from snapshotting import Message
+from snapshotting import Message, reload_snapshot
 
 ACTOR_PROXIES = []
 
@@ -76,5 +76,5 @@ def run_example(args):
         print("Example not implemented")
 
 def reload_example(snapshot_dir):
-    print(snapshot_dir)
+    reload_snapshot(snapshot_dir)
 

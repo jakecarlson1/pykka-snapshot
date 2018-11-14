@@ -28,7 +28,7 @@ def show_snapshots(snapshot_dir):
     for i, d in enumerate(dirs):
         print('[{}]:\t'.format(i), d, sep='')
         with open(snapshot_dir + '/' + d + '/info.txt', 'r') as f:
-            print('\t' + f.read().replace('\n', '\n\t'))
+            print('\t' + f.readline())
 
     num = input('Choose a snapshot number: ')
     while not is_int(num) or int(num) < 0 or int(num) >= len(dirs):
@@ -49,7 +49,6 @@ def main():
 
     if args.reload:
         reload_dir = show_snapshots(args.snapshot_dir)
-        print(reload_dir)
         reload_example(reload_dir)
     else:
         run_example(vars(args))
