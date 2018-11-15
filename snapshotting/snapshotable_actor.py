@@ -12,6 +12,7 @@ class SnapshotableActor(ThreadingActor):
         super().__init__()
         self.id = self.actor_urn
         self.id_short = self.shorten_id()
+        # TODO: dynamically record neighbors
         self.neighbors = []
         self.snapshots = {}
         with open(os.path.dirname(os.path.abspath(__file__)) + "/config/snapshotdir.txt", "r") as f:
