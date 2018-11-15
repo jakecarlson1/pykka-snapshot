@@ -1,11 +1,10 @@
 import json
+import pickle
 import sys
 from importlib.util import spec_from_file_location, module_from_spec
 
 def reload_snapshot(snapshot_dir):
-    print(snapshot_dir)
     meta_data = load_meta_data(snapshot_dir)
-    print(meta_data)
     reload_from_meta_data(meta_data, snapshot_dir)
 
 def load_meta_data(snapshot_dir):
@@ -32,29 +31,42 @@ def parse_meta_data(actor_data):
 
 def reload_from_meta_data(meta_data, snapshot_dir):
     loaded_modules = {}
-    for actor, meta in meta_data.items():
-        class_name = actor.split('-')[0]
+    loaded_actors = {}
+    for actor_string, meta in meta_data.items():
+        class_name = actor_string.split('-')[0]
         if class_name not in loaded_modules.keys():
             module = load_module(class_name, meta['class_path'])
             loaded_modules[class_name] = module
+
         module = loaded_modules[class_name]
         cls = eval("module.{}".format(class_name))
-        start_and_reload_actor(class_name, snapshot_dir, cls)
+        actor, snapshot = start_and_reload_actor(actor_string, snapshot_dir, cls)
+        loaded_actors[actor_string] = (actor, snapshot)
+    
+    restore_channels(loaded_actors)
 
 def load_module(name, path):
     spec = spec_from_file_location(name, path)
-    print(spec)
     module = module_from_spec(spec)
-    print(module)
+    
     if name in str(module):
         spec.loader.exec_module(module)
 
     return module
 
-def start_and_reload_actor(class_name, snapshot_dir, cls):
-    alloc = cls.__new__(cls)
-    print(alloc)
-    super(cls, alloc).__init__()
-    print(alloc)
-    # TODO: load pickle data into class
+def start_and_reload_actor(actor_string, snapshot_dir, cls):
+    actor = cls.__new__(cls)
+    super(cls, actor).__init__()
+
+    snapshot = {}
+    with open("{}/{}.pkl".format(snapshot_dir, actor_string), 'rb') as f:
+        snapshot = pickle.load(f)
     
+    for k, v in snapshot.saved_actor_state.items():
+        setattr(actor, k, v)
+
+    return actor, snapshot
+
+def restore_channels(actors):
+    pass
+
