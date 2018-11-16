@@ -12,7 +12,7 @@ class SnapshotableActor(ThreadingActor):
     def __init__(self):
         super().__init__()
         self.id = self.actor_urn
-        self.id_short = self.shorten_id()
+        self.id_short = self._shorten_id()
         # TODO: dynamically record neighbors
         self.neighbors = []
         self.snapshots = {}
@@ -36,9 +36,6 @@ class SnapshotableActor(ThreadingActor):
     def send_message_to_self(self, msg_data):
         msg = Message(self.id_short, self.id_short, msg_data)
         self.actor_ref.tell(msg.as_sendable())
-
-    def shorten_id(self):
-        return self.id.split(":")[2].split("-")[0]
 
     def on_receive(self, message):
         msg_obj = message['obj']
@@ -122,6 +119,9 @@ class SnapshotableActor(ThreadingActor):
         }
 
         return json.dumps(data, indent=4)
+
+    def _shorten_id(self):
+        return self.id.split(":")[2].split("-")[0]
 
     def _register(self):
         ActorRegistry.register(self.actor_ref)
