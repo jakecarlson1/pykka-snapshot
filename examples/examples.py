@@ -77,4 +77,11 @@ def run_example(args):
 
 def reload_example(snapshot_dir):
     actors = reload_snapshot(snapshot_dir)
+    ACTOR_PROXIES.append([a.proxy() for a in actors])
+    try:
+        while True:
+            time.sleep(100)
+    except (KeyboardInterrupt):
+        cleanup()
+
 

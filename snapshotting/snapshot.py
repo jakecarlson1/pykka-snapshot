@@ -13,7 +13,6 @@ class Snapshot(object):
             self.saved_channels[(n.id_short, snapshotable_actor.id_short)] = Channel()
 
     def is_in_progress(self):
-        print({k:c.is_recording for k,c in self.saved_channels.items()})
         return sum([c.is_recording for c in self.saved_channels.values()]) > 0
 
     def save_message(self, message):

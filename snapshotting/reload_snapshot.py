@@ -47,6 +47,8 @@ def reload_from_meta_data(meta_data, snapshot_dir):
             'snapshot': snapshot
         }
     
+    [d['actor']._register() for d in loaded_actors.values()]
+
     restore_channels(loaded_actors)
 
     restore_neighbors(loaded_actors)
@@ -111,5 +113,8 @@ def build_queue_from_channels_for_actor(actor_string, actors, id_short_map):
     return remapped_queue
 
 def restore_neighbors(actors):
-    pass
+    actors = [a['actor'] for a in actors.values()]
+    for i, a in enumerate(actors):
+        actors_to_send = [ac for j, ac in enumerate(actors) if j != i]
+        a.save_neighbors(actors_to_send, proxies=False)
 

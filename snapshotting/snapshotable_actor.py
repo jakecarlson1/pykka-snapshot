@@ -22,8 +22,11 @@ class SnapshotableActor(ThreadingActor):
         self.attrs_of_super = {}
         self.attrs_of_super = set(self.__dict__.keys())
 
-    def save_neighbors(self, proxies):
-        self.neighbors = [Neighbor(p) for p in proxies]
+    def save_neighbors(self, instances, proxies=True):
+        if proxies:
+            self.neighbors = [Neighbor().from_proxy(p) for p in instances]
+        else:
+            self.neighbors = [Neighbor().from_actor(a) for a in instances]
 
     def send_message_to_neighbor(self, i, msg_data):
         receiver = self.neighbors[i]
@@ -120,8 +123,10 @@ class SnapshotableActor(ThreadingActor):
 
         return json.dumps(data, indent=4)
 
-    def _restart(self):
+    def _register(self):
         ActorRegistry.register(self.actor_ref)
+
+    def _restart(self):
         self._start_actor_loop()
         return self.actor_ref
 
