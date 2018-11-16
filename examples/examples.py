@@ -76,5 +76,5 @@ def run_example(args):
         print("Example not implemented")
 
 def reload_example(snapshot_dir):
-    reload_snapshot(snapshot_dir)
+    actors = reload_snapshot(snapshot_dir)
 

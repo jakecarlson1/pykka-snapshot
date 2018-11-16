@@ -1,5 +1,6 @@
 from datetime import datetime
 from pykka import ThreadingActor
+from pykka.registry import ActorRegistry
 from snapshotting import Message, Neighbor, Snapshot
 from uuid import uuid4
 import inspect
@@ -118,4 +119,9 @@ class SnapshotableActor(ThreadingActor):
         }
 
         return json.dumps(data, indent=4)
+
+    def _restart(self):
+        ActorRegistry.register(self.actor_ref)
+        self._start_actor_loop()
+        return self.actor_ref
 
