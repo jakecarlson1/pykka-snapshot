@@ -4,5 +4,6 @@ class Channel(object):
         self.is_recording = True
 
     def add_message(self, message):
-        self.messages.append(message)
+        if self.is_recording:
+            self.messages.append(message)
 
