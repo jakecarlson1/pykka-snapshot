@@ -54,6 +54,7 @@ class SnapshotableActor(ThreadingActor):
                 self.snapshots[snapshot_id].mark_channel_closed(msg_obj.get_channel())
             else:
                 self.snapshots[snapshot_id].mark_channel_closed(msg_obj.get_channel())
+
             if not self.snapshots[snapshot_id].is_in_progress():
                 self._post_process_snapshot(snapshot_id)
 
@@ -75,9 +76,11 @@ class SnapshotableActor(ThreadingActor):
         if snapshot_id == None:
             snapshot_id = uuid4()
         snapshot = Snapshot(snapshot_id)
+
         self._update_attrs_to_save()
         if len(self.attrs_to_save) == 0:
             print("No attributes to save")
+
         snapshot.save_actor_state(self)
         self.snapshots[snapshot_id] = snapshot
         self._send_mark_to_neighbors(snapshot_id)
@@ -95,8 +98,10 @@ class SnapshotableActor(ThreadingActor):
         class_name = self.__class__.__name__
         snapshot_path = self.snapshot_dir + "/" + str(snapshot_id)
         file_name = "{}/{}-{}.pkl".format(snapshot_path, class_name, self.id_short)
+
         with open(file_name, "wb") as f:
             pickle.dump(self.snapshots[snapshot_id], f)
+
         with open(snapshot_path + "/info.txt", "a") as f:
             f.write("{}-{}: {}\n".format(
                 class_name, self.id_short, self._json_save_dict()

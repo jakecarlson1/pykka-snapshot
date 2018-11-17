@@ -48,9 +48,7 @@ def reload_from_meta_data(meta_data, snapshot_dir):
         }
     
     [d['actor']._register() for d in loaded_actors.values()]
-
     restore_channels(loaded_actors)
-
     restore_neighbors(loaded_actors)
 
     return [d['actor']._restart() for d in loaded_actors.values()]
@@ -80,10 +78,10 @@ def start_and_reload_actor(actor_string, snapshot_dir, cls):
 def restore_channels(actors):
     old_to_new_id_short = {a.split('-')[1]:d['actor'].id_short 
                            for a,d in actors.items()}
-    print(old_to_new_id_short)
     for a, d in actors.items():
         queue = build_queue_from_channels_for_actor(a, actors, old_to_new_id_short)
         actors[a]['queue'] = queue
+
     for a, d in actors.items():
         ref = d['actor'].actor_ref
         for m in d['queue']:
