@@ -34,6 +34,10 @@ A SnapshotableActor can also send a message to itself with the `send_message_to_
 ### Reloading
 Reloading is done by passing a snapshot directory to the `reload_snapshot()` method. The format for snapshot directories is a `info.txt` file with actor metadata, and group of pickled snapshot instances. The metadata includes the path to the original SnapshotableActor subclass, the class name, the short id of the actor, and the time the snapshot was written to disk.
 
+## Todo
+- Dynamically record neighbors
+- Save snapshots as a diff to the previous snapshot
+
 ## References
 [Pykka](https://github.com/jodal/pykka)
 
